@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/TextPlugin.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0d0d0f;
+      }
+      body {
+        font-family: "Archivo", sans-serif;
+      }
+
+      /* ---------- Design system ---------- */
+      :root {
+        --ink: #f4f1ea;
+        --paper: #0d0d0f;
+        --accent: #ff3b30; /* Vox-red */
+        --accent-2: #ffcf00; /* editorial yellow */
+        --muted: #8a8a92;
+        --line: rgba(244, 241, 234, 0.14);
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        background: var(--paper);
+        color: var(--ink);
+        overflow: hidden;
+      }
+
+      /* Registration / grid atmosphere */
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        background-size: 80px 80px;
+        opacity: 0.5;
+      }
+      .frame-mark {
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        border: 2px solid var(--muted);
+        opacity: 0.7;
+      }
+      .frame-mark.tl { top: 40px; left: 40px; border-right: 0; border-bottom: 0; }
+      .frame-mark.tr { top: 40px; right: 40px; border-left: 0; border-bottom: 0; }
+      .frame-mark.bl { bottom: 40px; left: 40px; border-right: 0; border-top: 0; }
+      .frame-mark.br { bottom: 40px; right: 40px; border-left: 0; border-top: 0; }
+
+      .kicker {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 600;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        font-size: 22px;
+        color: var(--accent);
+      }
+      .eyebrow {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 500;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        font-size: 20px;
+        color: var(--muted);
+      }
+      .headline {
+        font-family: "Archivo", sans-serif;
+        font-weight: 900;
+        line-height: 0.94;
+        letter-spacing: -0.02em;
+        font-size: 132px;
+        color: var(--ink);
+      }
+      .mono {
+        font-family: "Space Grotesk", monospace;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* ---------- Scenes ---------- */
+      .stage {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 120px 140px;
+      }
+
+      /* Hero */
+      .hero-accent-bar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 18px;
+        background: var(--accent);
+      }
+      .hero-meta {
+        display: flex;
+        gap: 28px;
+        align-items: center;
+        margin-bottom: 34px;
+      }
+      .hero-title .ln {
+        display: block;
+        overflow: hidden;
+      }
+      .hero-title .ln > span {
+        display: inline-block;
+      }
+      .hero-red { color: var(--accent); }
+      .hero-sub {
+        margin-top: 40px;
+        max-width: 760px;
+        font-size: 30px;
+        line-height: 1.4;
+        color: var(--muted);
+        font-weight: 400;
+      }
+
+      /* Stat scene */
+      .stat-num {
+        font-family: "Archivo", sans-serif;
+        font-weight: 900;
+        font-size: 340px;
+        line-height: 1;
+        letter-spacing: -0.04em;
+        color: var(--ink);
+      }
+      .stat-num .pct { color: var(--accent); }
+      .stat-label {
+        margin-top: 24px;
+        font-size: 34px;
+        font-weight: 600;
+        color: var(--ink);
+        max-width: 900px;
+        line-height: 1.25;
+      }
+      .stat-foot {
+        margin-top: 18px;
+        font-size: 22px;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+      }
+
+      /* Chart scene */
+      .chart-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 30px;
+        margin-top: 60px;
+        height: 520px;
+      }
+      .bar-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        height: 100%;
+        justify-content: flex-end;
+      }
+      .bar {
+        width: 100%;
+        height: 0;
+        background: linear-gradient(180deg, var(--accent), #b21f17);
+        border-radius: 6px 6px 0 0;
+      }
+      .bar.alt { background: linear-gradient(180deg, var(--accent-2), #c9a400); }
+      .bar-val {
+        font-family: "Archivo", sans-serif;
+        font-weight: 800;
+        font-size: 34px;
+      }
+      .bar-lbl {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 22px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      /* Sting */
+      .sting-wrap {
+        align-items: center;
+        text-align: center;
+      }
+      .sting-mark {
+        font-family: "Archivo Black", sans-serif;
+        font-size: 200px;
+        letter-spacing: -0.03em;
+        color: var(--ink);
+      }
+      .sting-mark .dot { color: var(--accent); }
+      .sting-sub {
+        margin-top: 22px;
+        font-family: "Space Grotesk", sans-serif;
+        letter-spacing: 0.4em;
+        text-transform: uppercase;
+        font-size: 24px;
+        color: var(--muted);
+      }
+      .sting-rule {
+        margin: 40px auto 0;
+        width: 0;
+        height: 4px;
+        background: var(--accent);
+      }
+
+      .scanline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 2px;
+        top: 0;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        opacity: 0.25;
+        transform: translateY(-540px);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="12"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- Static atmosphere (no timing) -->
+      <div class="grid"></div>
+      <div class="frame-mark tl"></div>
+      <div class="frame-mark tr"></div>
+      <div class="frame-mark bl"></div>
+      <div class="frame-mark br"></div>
+      <div class="scanline" id="scan"></div>
+
+      <!-- ===== SCENE 1 — HERO ===== -->
+      <section
+        id="s1"
+        class="clip"
+        data-start="0"
+        data-duration="3.2"
+        data-track-index="1"
+        style="visibility: hidden"
+      >
+        <div class="stage" id="s1inner">
+          <div class="hero-accent-bar"></div>
+          <div class="hero-meta">
+            <span class="kicker">The Explainer</span>
+            <span class="eyebrow">Issue 01 · 2026</span>
+          </div>
+          <div class="hero-title headline">
+            <span class="ln"><span>How the</span></span>
+            <span class="ln"><span class="hero-red">internet</span></span>
+            <span class="ln"><span>actually works</span></span>
+          </div>
+          <p class="hero-sub">
+            A field guide to the invisible machines moving your world — one packet at a time.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== SCENE 2 — STAT COUNT-UP ===== -->
+      <section
+        id="s2"
+        class="clip"
+        data-start="3.2"
+        data-duration="3.4"
+        data-track-index="1"
+        style="visibility: hidden"
+      >
+        <div class="stage" id="s2inner">
+          <span class="eyebrow" style="margin-bottom: 30px">By the numbers</span>
+          <div class="stat-num mono">
+            <span id="statVal">0</span><span class="pct">%</span>
+          </div>
+          <div class="stat-label">of global web traffic now runs through just a handful of networks.</div>
+          <div class="stat-foot">Source: consolidated transit telemetry, 2025</div>
+        </div>
+      </section>
+
+      <!-- ===== SCENE 3 — BAR CHART ===== -->
+      <section
+        id="s3"
+        class="clip"
+        data-start="6.6"
+        data-duration="3.2"
+        data-track-index="1"
+        style="visibility: hidden"
+      >
+        <div class="stage" id="s3inner">
+          <span class="eyebrow" style="margin-bottom: 14px">Where the traffic goes</span>
+          <h2 class="headline" style="font-size: 72px">Share of total bandwidth</h2>
+          <div class="chart-row" id="chart">
+            <div class="bar-col">
+              <div class="bar-val mono">42</div>
+              <div class="bar" data-h="100"></div>
+              <div class="bar-lbl">Video</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-val mono">28</div>
+              <div class="bar alt" data-h="66"></div>
+              <div class="bar-lbl">Social</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-val mono">18</div>
+              <div class="bar" data-h="43"></div>
+              <div class="bar-lbl">Cloud</div>
+            </div>
+            <div class="bar-col">
+              <div class="bar-val mono">12</div>
+              <div class="bar alt" data-h="29"></div>
+              <div class="bar-lbl">Other</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SCENE 4 — LOGO STING ===== -->
+      <section
+        id="s4"
+        class="clip"
+        data-start="9.8"
+        data-duration="2.2"
+        data-track-index="1"
+        style="visibility: hidden"
+      >
+        <div class="stage sting-wrap" id="s4inner">
+          <div class="sting-mark">VOX<span class="dot">.</span></div>
+          <div class="sting-sub">Explain the world</div>
+          <div class="sting-rule" id="stingRule"></div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      gsap.registerPlugin(TextPlugin);
+
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ---- Scene 1: kinetic headline reveal ----
+      tl.from("#s1inner .hero-accent-bar", { scaleY: 0, transformOrigin: "top", duration: 0.5, ease: "expo.out" }, 0);
+      tl.from("#s1inner .hero-meta", { autoAlpha: 0, y: 16, duration: 0.4, ease: "power2.out" }, 0.1);
+      tl.from(
+        "#s1inner .hero-title .ln > span",
+        { yPercent: 110, duration: 0.7, ease: "expo.out", stagger: 0.12 },
+        0.25
+      );
+      tl.from("#s1inner .hero-sub", { autoAlpha: 0, y: 20, duration: 0.6, ease: "power2.out" }, 0.95);
+      tl.to("#s1inner", { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 2.8);
+      tl.set("#s1inner", { autoAlpha: 0 }, 3.2);
+
+      // ---- Scene 2: count-up ----
+      tl.from("#s2inner .eyebrow", { autoAlpha: 0, y: 14, duration: 0.4, ease: "power2.out" }, 3.35);
+      const statObj = { v: 0 };
+      tl.fromTo(
+        "#s2inner .stat-num",
+        { autoAlpha: 0, y: 30 },
+        { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out" },
+        3.5
+      );
+      tl.to(
+        statObj,
+        {
+          v: 88,
+          duration: 1.6,
+          ease: "power2.out",
+          onUpdate: () => {
+            document.getElementById("statVal").textContent = Math.round(statObj.v);
+          },
+        },
+        3.5
+      );
+      tl.from("#s2inner .stat-label", { autoAlpha: 0, y: 18, duration: 0.55, ease: "power2.out" }, 4.1);
+      tl.from("#s2inner .stat-foot", { autoAlpha: 0, duration: 0.5 }, 4.5);
+      tl.to("#s2inner", { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 6.2);
+      tl.set("#s2inner", { autoAlpha: 0 }, 6.6);
+
+      // ---- Scene 3: bar chart fill ----
+      tl.from("#s3inner .eyebrow", { autoAlpha: 0, y: 14, duration: 0.4, ease: "power2.out" }, 6.75);
+      tl.from("#s3inner h2", { autoAlpha: 0, y: 20, duration: 0.5, ease: "power2.out" }, 6.9);
+      tl.to(
+        "#s3inner .bar",
+        {
+          height: (i, el) => el.dataset.h + "%",
+          duration: 1.1,
+          ease: "expo.out",
+          stagger: 0.12,
+        },
+        7.1
+      );
+      tl.from(
+        "#s3inner .bar-col",
+        { autoAlpha: 0, y: 24, duration: 0.5, ease: "power2.out", stagger: 0.12 },
+        7.1
+      );
+      tl.to("#s3inner", { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 9.4);
+      tl.set("#s3inner", { autoAlpha: 0 }, 9.8);
+
+      // ---- Scene 4: logo sting ----
+      tl.from(
+        "#s4inner .sting-mark",
+        { autoAlpha: 0, scale: 0.8, duration: 0.6, ease: "back.out(1.7)" },
+        9.95
+      );
+      tl.from("#s4inner .sting-sub", { autoAlpha: 0, y: 16, duration: 0.4, ease: "power2.out" }, 10.7);
+      tl.to("#stingRule", { width: 360, duration: 0.6, ease: "power3.out" }, 10.8);
+      tl.to("#s4inner", { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 11.8);
+
+      // ---- Ambient scanline drift (transform-based) ----
+      tl.fromTo(
+        "#scan",
+        { y: -540 },
+        { y: 540, duration: 12, ease: "sine.inOut" },
+        0
+      );
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
