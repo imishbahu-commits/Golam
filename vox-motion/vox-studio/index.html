@@ -4,37 +4,102 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1920, height=1080" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="assets/fonts/fraunces-900.woff2"
+      crossorigin
     />
-    <script src="vendor/gsap.min.js"></script>
-    <script src="vendor/TextPlugin.min.js"></script>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+      @font-face {
+        font-family: "Fraunces";
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+        src: url("assets/fonts/fraunces-400.woff2") format("woff2");
       }
-      html,
-      body {
+      @font-face {
+        font-family: "Fraunces";
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+        src: url("assets/fonts/fraunces-600.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Fraunces";
+        font-weight: 900;
+        font-style: normal;
+        font-display: swap;
+        src: url("assets/fonts/fraunces-900.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Space Grotesk";
+        font-weight: 400 700;
+        font-style: normal;
+        font-display: swap;
+        src: url("assets/fonts/space-400.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Space Grotesk";
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+        src: url("assets/fonts/space-500.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Space Grotesk";
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+        src: url("assets/fonts/space-600.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Space Grotesk";
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+        src: url("assets/fonts/space-700.woff2") format("woff2");
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      html, body {
         margin: 0;
         width: 1920px;
         height: 1080px;
         overflow: hidden;
-        background: #0d0d0f;
-      }
-      body {
-        font-family: "Archivo", sans-serif;
+        background: #efe7d8;
       }
 
-      /* ---------- Design system ---------- */
       :root {
-        --ink: #f4f1ea;
-        --paper: #0d0d0f;
-        --accent: #ff3b30; /* Vox-red */
-        --accent-2: #ffcf00; /* editorial yellow */
-        --muted: #8a8a92;
-        --line: rgba(244, 241, 234, 0.14);
+        --paper: #efe7d8;
+        --paper-deep: #e2d6c0;
+        --ink: #1c1a17;
+        --ink-soft: #4a463f;
+        --accent: #c2402e;
+        --accent-ink: #7a2014;
+        --accent-2: #2f6f6a;
+        --line: rgba(28, 26, 23, 0.14);
+      }
+
+      /* ---- paper / textile texture (SVG turbulence + weave) ---- */
+      #tex {
+        position: absolute;
+        inset: -10%;
+        z-index: 0;
+        opacity: 0.9;
+        background-color: var(--paper);
+        background-image:
+          url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>"),
+          repeating-linear-gradient(0deg, rgba(28,26,23,0.045) 0 1px, transparent 1px 4px),
+          repeating-linear-gradient(90deg, rgba(28,26,23,0.045) 0 1px, transparent 1px 4px);
+        background-size: 220px 220px, auto, auto;
+      }
+      #vignette {
+        position: absolute;
+        inset: 0;
+        z-index: 6;
+        pointer-events: none;
+        background: radial-gradient(120% 120% at 50% 45%, transparent 55%, rgba(28,26,23,0.28) 100%);
       }
 
       #root {
@@ -44,316 +109,309 @@
         background: var(--paper);
         color: var(--ink);
         overflow: hidden;
+        perspective: 1400px;
+        perspective-origin: 50% 50%;
       }
 
-      /* Registration / grid atmosphere */
-      .grid {
+      /* ---- parallax world: layers at different Z ---- */
+      .camera {
         position: absolute;
         inset: 0;
-        background-image:
-          linear-gradient(var(--line) 1px, transparent 1px),
-          linear-gradient(90deg, var(--line) 1px, transparent 1px);
-        background-size: 80px 80px;
-        opacity: 0.5;
+        transform-style: preserve-3d;
+        z-index: 2;
+        will-change: transform;
       }
-      .frame-mark {
-        position: absolute;
-        width: 26px;
-        height: 26px;
-        border: 2px solid var(--muted);
-        opacity: 0.7;
-      }
-      .frame-mark.tl { top: 40px; left: 40px; border-right: 0; border-bottom: 0; }
-      .frame-mark.tr { top: 40px; right: 40px; border-left: 0; border-bottom: 0; }
-      .frame-mark.bl { bottom: 40px; left: 40px; border-right: 0; border-top: 0; }
-      .frame-mark.br { bottom: 40px; right: 40px; border-left: 0; border-top: 0; }
+      .layer { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+      .l-back  { transform: translateZ(-380px) scale(1.32); }
+      .l-mid   { transform: translateZ(-160px) scale(1.13); }
+      .l-front { transform: translateZ(70px)  scale(0.95); }
 
-      .kicker {
-        font-family: "Space Grotesk", sans-serif;
-        font-weight: 600;
-        letter-spacing: 0.32em;
-        text-transform: uppercase;
-        font-size: 22px;
-        color: var(--accent);
-      }
-      .eyebrow {
-        font-family: "Space Grotesk", sans-serif;
-        font-weight: 500;
-        letter-spacing: 0.28em;
-        text-transform: uppercase;
-        font-size: 20px;
-        color: var(--muted);
-      }
-      .headline {
-        font-family: "Archivo", sans-serif;
-        font-weight: 900;
-        line-height: 0.94;
-        letter-spacing: -0.02em;
-        font-size: 132px;
-        color: var(--ink);
-      }
-      .mono {
-        font-family: "Space Grotesk", monospace;
-        font-variant-numeric: tabular-nums;
-      }
-
-      /* ---------- Scenes ---------- */
       .stage {
         position: absolute;
         inset: 0;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        padding: 120px 140px;
+        padding: 130px 160px;
       }
+      .center { align-items: center; text-align: center; }
 
-      /* Hero */
-      .hero-accent-bar {
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 18px;
-        background: var(--accent);
-      }
-      .hero-meta {
-        display: flex;
-        gap: 28px;
-        align-items: center;
-        margin-bottom: 34px;
-      }
-      .hero-title .ln {
-        display: block;
-        overflow: hidden;
-      }
-      .hero-title .ln > span {
-        display: inline-block;
-      }
-      .hero-red { color: var(--accent); }
-      .hero-sub {
-        margin-top: 40px;
-        max-width: 760px;
-        font-size: 30px;
-        line-height: 1.4;
-        color: var(--muted);
-        font-weight: 400;
-      }
-
-      /* Stat scene */
-      .stat-num {
-        font-family: "Archivo", sans-serif;
-        font-weight: 900;
-        font-size: 340px;
-        line-height: 1;
-        letter-spacing: -0.04em;
-        color: var(--ink);
-      }
-      .stat-num .pct { color: var(--accent); }
-      .stat-label {
-        margin-top: 24px;
-        font-size: 34px;
+      .kicker {
+        font-family: "Space Grotesk", sans-serif;
         font-weight: 600;
-        color: var(--ink);
-        max-width: 900px;
-        line-height: 1.25;
-      }
-      .stat-foot {
-        margin-top: 18px;
-        font-size: 22px;
-        color: var(--muted);
-        letter-spacing: 0.04em;
-      }
-
-      /* Chart scene */
-      .chart-row {
-        display: flex;
-        align-items: flex-end;
-        gap: 30px;
-        margin-top: 60px;
-        height: 520px;
-      }
-      .bar-col {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 16px;
-        flex: 1;
-        height: 100%;
-        justify-content: flex-end;
-      }
-      .bar {
-        width: 100%;
-        height: 0;
-        background: linear-gradient(180deg, var(--accent), #b21f17);
-        border-radius: 6px 6px 0 0;
-      }
-      .bar.alt { background: linear-gradient(180deg, var(--accent-2), #c9a400); }
-      .bar-val {
-        font-family: "Archivo", sans-serif;
-        font-weight: 800;
-        font-size: 34px;
-      }
-      .bar-lbl {
-        font-family: "Space Grotesk", sans-serif;
-        font-size: 22px;
-        color: var(--muted);
-        letter-spacing: 0.08em;
+        letter-spacing: 0.34em;
         text-transform: uppercase;
+        font-size: 21px;
+        color: var(--accent-ink);
       }
-
-      /* Sting */
-      .sting-wrap {
-        align-items: center;
-        text-align: center;
+      .eyebrow {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 500;
+        letter-spacing: 0.26em;
+        text-transform: uppercase;
+        font-size: 19px;
+        color: var(--ink-soft);
       }
-      .sting-mark {
-        font-family: "Archivo Black", sans-serif;
-        font-size: 200px;
-        letter-spacing: -0.03em;
+      .display {
+        font-family: "Fraunces", serif;
+        font-weight: 900;
+        line-height: 0.98;
+        letter-spacing: -0.015em;
+        font-size: 116px;
         color: var(--ink);
       }
-      .sting-mark .dot { color: var(--accent); }
-      .sting-sub {
-        margin-top: 22px;
-        font-family: "Space Grotesk", sans-serif;
-        letter-spacing: 0.4em;
-        text-transform: uppercase;
-        font-size: 24px;
-        color: var(--muted);
+      .body {
+        margin-top: 34px;
+        max-width: 980px;
+        font-family: "Fraunces", serif;
+        font-weight: 400;
+        font-size: 38px;
+        line-height: 1.32;
+        color: var(--ink-soft);
       }
-      .sting-rule {
-        margin: 40px auto 0;
-        width: 0;
-        height: 4px;
-        background: var(--accent);
-      }
+      .mono { font-family: "Space Grotesk", monospace; font-variant-numeric: tabular-nums; }
+      .red { color: var(--accent); }
+      .teal { color: var(--accent-2); }
 
-      .scanline {
+      /* decorative parallax props */
+      .prop {
         position: absolute;
-        left: 0;
-        right: 0;
-        height: 2px;
-        top: 0;
-        background: linear-gradient(90deg, transparent, var(--accent), transparent);
-        opacity: 0.25;
-        transform: translateY(-540px);
+        border-radius: 14px;
+        opacity: 0.92;
       }
+      .card {
+        background: linear-gradient(160deg, #fff8ec, var(--paper-deep));
+        box-shadow: 0 30px 60px rgba(28,26,23,0.18), inset 0 0 0 1px rgba(28,26,23,0.06);
+        padding: 34px 40px;
+      }
+      .pill {
+        display: inline-block;
+        background: var(--accent);
+        color: #fff;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        font-size: 26px;
+        padding: 12px 26px;
+        border-radius: 999px;
+      }
+      .ring {
+        border: 3px solid var(--accent-2);
+        border-radius: 50%;
+        opacity: 0.5;
+      }
+      .dotgrid {
+        background-image: radial-gradient(rgba(28,26,23,0.5) 2px, transparent 2px);
+        background-size: 26px 26px;
+        opacity: 0.25;
+      }
+
+      .frame-mark {
+        position: absolute;
+        width: 26px; height: 26px;
+        border: 2px solid var(--ink-soft);
+        opacity: 0.5;
+        z-index: 7;
+      }
+      .frame-mark.tl { top: 38px; left: 38px; border-right: 0; border-bottom: 0; }
+      .frame-mark.tr { top: 38px; right: 38px; border-left: 0; border-bottom: 0; }
+      .frame-mark.bl { bottom: 38px; left: 38px; border-right: 0; border-top: 0; }
+      .frame-mark.br { bottom: 38px; right: 38px; border-left: 0; border-top: 0; }
+
+      /* loading shimmer while fonts settle */
+      .scene { z-index: 3; }
     </style>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/TextPlugin.min.js"></script>
   </head>
   <body>
     <div
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="12"
+      data-duration="27"
       data-width="1920"
       data-height="1080"
     >
-      <!-- Static atmosphere (no timing) -->
-      <div class="grid"></div>
+      <div id="tex"></div>
+
+      <!-- anchor / non-anchor scenes share one parallax camera world -->
+
+      <!-- ===== SCENE 1 — HOOK ===== -->
+      <section
+        id="s1"
+        class="clip scene"
+        data-start="0"
+        data-duration="5.0"
+        data-track-index="1"
+        style="visibility: hidden"
+      >
+        <div class="camera" id="cam1">
+          <div class="layer l-back" id="b1">
+            <div class="prop dotgrid" data-layout-allow-overflow style="inset: 8% 6% 10% 8%"></div>
+          </div>
+          <div class="layer l-mid" id="m1">
+            <div class="prop ring" data-layout-allow-overflow style="width: 520px; height: 520px; top: 12%; right: 6%"></div>
+          </div>
+          <div class="layer l-front" id="f1">
+            <div class="stage">
+              <span class="kicker" style="margin-bottom: 26px">The Explainer</span>
+              <h1 class="display">
+                When you open<br />a <span class="red">webpage</span>,
+              </h1>
+              <p class="body">
+                you're not just loading a file. You're starting a journey.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SCENE 2 — FIBER / ROUTERS ===== -->
+      <section
+        id="s2"
+        class="clip scene"
+        data-start="5.0"
+        data-duration="5.4"
+        data-track-index="1"
+        style="visibility: hidden"
+      >
+        <div class="camera" id="cam2">
+          <div class="layer l-back" id="b2">
+            <div class="prop dotgrid" data-layout-allow-overflow style="inset: 14% 10% 8% 6%"></div>
+          </div>
+          <div class="layer l-mid" id="m2">
+            <div class="prop card mono" style="top: 16%; left: 9%; font-size: 30px">
+              ▸ 299,792 km/s
+            </div>
+            <div class="prop ring" data-layout-allow-overflow style="width: 380px; height: 380px; bottom: 8%; left: 14%"></div>
+          </div>
+          <div class="layer l-front" id="f2">
+            <div class="stage">
+              <span class="eyebrow" style="margin-bottom: 22px">Stage 01 · Transit</span>
+              <h1 class="display" style="font-size: 92px">
+                Your request races<br />through <span class="teal">fiber</span> cables
+              </h1>
+              <p class="body">
+                bouncing between routers at nearly the speed of light.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SCENE 3 — SERVER ===== -->
+      <section
+        id="s3"
+        class="clip scene"
+        data-start="10.4"
+        data-duration="5.6"
+        data-track-index="1"
+        style="visibility: hidden"
+      >
+        <div class="camera" id="cam3">
+          <div class="layer l-back" id="b3">
+            <div class="prop dotgrid" data-layout-allow-overflow style="inset: 10% 8% 12% 8%"></div>
+          </div>
+          <div class="layer l-mid" id="m3">
+            <div class="prop card" style="top: 14%; right: 8%; padding: 30px 36px">
+              <div class="pill">SERVER</div>
+            </div>
+            <div class="prop ring" data-layout-allow-overflow style="width: 440px; height: 440px; top: 18%; left: 8%"></div>
+          </div>
+          <div class="layer l-front" id="f3">
+            <div class="stage center">
+              <span class="eyebrow" style="margin-bottom: 22px">Stage 02 · Origin</span>
+              <h1 class="display" style="font-size: 104px">
+                It reaches a <span class="red">server</span>
+              </h1>
+              <p class="body" style="margin-left:auto;margin-right:auto">
+                a warehouse of computers somewhere on the planet — which finds
+                the page and sends it racing back.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SCENE 4 — MILLISECONDS / SCALE ===== -->
+      <section
+        id="s4"
+        class="clip scene"
+        data-start="16.0"
+        data-duration="5.6"
+        data-track-index="1"
+        style="visibility: hidden"
+      >
+        <div class="camera" id="cam4">
+          <div class="layer l-back" id="b4">
+            <div class="prop dotgrid" data-layout-allow-overflow style="inset: 8% 8% 8% 8%"></div>
+          </div>
+          <div class="layer l-mid" id="m4">
+            <div class="prop ring" data-layout-allow-overflow style="width: 620px; height: 620px; bottom: 4%; right: 8%"></div>
+          </div>
+          <div class="layer l-front" id="f4">
+            <div class="stage center">
+              <span class="eyebrow" style="margin-bottom: 18px">At scale</span>
+              <h1 class="display" style="font-size: 132px">
+                <span class="red">milliseconds</span>
+              </h1>
+              <p class="body" style="margin-left:auto;margin-right:auto">
+                thousands of times a day, for billions of people.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SCENE 5 — CLOSE / STING ===== -->
+      <section
+        id="s5"
+        class="clip scene"
+        data-start="21.6"
+        data-duration="5.4"
+        data-track-index="1"
+        style="visibility: hidden"
+      >
+        <div class="camera" id="cam5">
+          <div class="layer l-back" id="b5">
+            <div class="prop dotgrid" data-layout-allow-overflow style="inset: 12% 8% 10% 8%"></div>
+          </div>
+          <div class="layer l-mid" id="m5">
+            <div class="prop ring" data-layout-allow-overflow style="width: 500px; height: 500px; top: 10%; left: 10%"></div>
+            <div class="prop card mono" style="bottom: 12%; right: 9%; font-size: 30px">
+              working <span class="red">right now</span>
+            </div>
+          </div>
+          <div class="layer l-front" id="f5">
+            <div class="stage center">
+              <span class="kicker" style="margin-bottom: 22px">The takeaway</span>
+              <h1 class="display" style="font-size: 96px">
+                The internet isn't <span class="red">magic</span>.
+              </h1>
+              <p class="body" style="margin-left:auto;margin-right:auto">
+                It's the largest machine humans have ever built — and it's
+                working right now, for you.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="vignette"></div>
       <div class="frame-mark tl"></div>
       <div class="frame-mark tr"></div>
       <div class="frame-mark bl"></div>
       <div class="frame-mark br"></div>
-      <div class="scanline" id="scan"></div>
 
-      <!-- ===== SCENE 1 — HERO ===== -->
-      <section
-        id="s1"
-        class="clip"
+      <!-- Narration track (TTS, high quality) -->
+      <audio
+        id="narration"
+        src="narration.wav"
         data-start="0"
-        data-duration="3.2"
-        data-track-index="1"
-        style="visibility: hidden"
-      >
-        <div class="stage" id="s1inner">
-          <div class="hero-accent-bar"></div>
-          <div class="hero-meta">
-            <span class="kicker">The Explainer</span>
-            <span class="eyebrow">Issue 01 · 2026</span>
-          </div>
-          <div class="hero-title headline">
-            <span class="ln"><span>How the</span></span>
-            <span class="ln"><span class="hero-red">internet</span></span>
-            <span class="ln"><span>actually works</span></span>
-          </div>
-          <p class="hero-sub">
-            A field guide to the invisible machines moving your world — one packet at a time.
-          </p>
-        </div>
-      </section>
-
-      <!-- ===== SCENE 2 — STAT COUNT-UP ===== -->
-      <section
-        id="s2"
-        class="clip"
-        data-start="3.2"
-        data-duration="3.4"
-        data-track-index="1"
-        style="visibility: hidden"
-      >
-        <div class="stage" id="s2inner">
-          <span class="eyebrow" style="margin-bottom: 30px">By the numbers</span>
-          <div class="stat-num mono">
-            <span id="statVal">0</span><span class="pct">%</span>
-          </div>
-          <div class="stat-label">of global web traffic now runs through just a handful of networks.</div>
-          <div class="stat-foot">Source: consolidated transit telemetry, 2025</div>
-        </div>
-      </section>
-
-      <!-- ===== SCENE 3 — BAR CHART ===== -->
-      <section
-        id="s3"
-        class="clip"
-        data-start="6.6"
-        data-duration="3.2"
-        data-track-index="1"
-        style="visibility: hidden"
-      >
-        <div class="stage" id="s3inner">
-          <span class="eyebrow" style="margin-bottom: 14px">Where the traffic goes</span>
-          <h2 class="headline" style="font-size: 72px">Share of total bandwidth</h2>
-          <div class="chart-row" id="chart">
-            <div class="bar-col">
-              <div class="bar-val mono">42</div>
-              <div class="bar" data-h="100"></div>
-              <div class="bar-lbl">Video</div>
-            </div>
-            <div class="bar-col">
-              <div class="bar-val mono">28</div>
-              <div class="bar alt" data-h="66"></div>
-              <div class="bar-lbl">Social</div>
-            </div>
-            <div class="bar-col">
-              <div class="bar-val mono">18</div>
-              <div class="bar" data-h="43"></div>
-              <div class="bar-lbl">Cloud</div>
-            </div>
-            <div class="bar-col">
-              <div class="bar-val mono">12</div>
-              <div class="bar alt" data-h="29"></div>
-              <div class="bar-lbl">Other</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== SCENE 4 — LOGO STING ===== -->
-      <section
-        id="s4"
-        class="clip"
-        data-start="9.8"
-        data-duration="2.2"
-        data-track-index="1"
-        style="visibility: hidden"
-      >
-        <div class="stage sting-wrap" id="s4inner">
-          <div class="sting-mark">VOX<span class="dot">.</span></div>
-          <div class="sting-sub">Explain the world</div>
-          <div class="sting-rule" id="stingRule"></div>
-        </div>
-      </section>
+        data-duration="25.2"
+        preload="auto"
+      ></audio>
     </div>
 
     <script>
@@ -362,82 +420,62 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      // ---- Scene 1: kinetic headline reveal ----
-      tl.from("#s1inner .hero-accent-bar", { scaleY: 0, transformOrigin: "top", duration: 0.5, ease: "expo.out" }, 0);
-      tl.from("#s1inner .hero-meta", { autoAlpha: 0, y: 16, duration: 0.4, ease: "power2.out" }, 0.1);
-      tl.from(
-        "#s1inner .hero-title .ln > span",
-        { yPercent: 110, duration: 0.7, ease: "expo.out", stagger: 0.12 },
-        0.25
-      );
-      tl.from("#s1inner .hero-sub", { autoAlpha: 0, y: 20, duration: 0.6, ease: "power2.out" }, 0.95);
-      tl.to("#s1inner", { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 2.8);
-      tl.set("#s1inner", { autoAlpha: 0 }, 3.2);
+      // ---------- shared helpers ----------
+      function enterText(scope, at) {
+        tl.from(scope + " .kicker, " + scope + " .eyebrow",
+          { autoAlpha: 0, y: 14, duration: 0.4, ease: "power2.out", stagger: 0.08 }, at);
+        tl.from(scope + " .display",
+          { autoAlpha: 0, y: 40, duration: 0.6, ease: "expo.out" }, at + 0.12);
+        tl.from(scope + " .body",
+          { autoAlpha: 0, y: 22, duration: 0.6, ease: "power2.out" }, at + 0.42);
+        const extras = document.querySelectorAll(scope + " .pill, " + scope + " .card.mono");
+        if (extras.length) {
+          tl.from(extras,
+            { autoAlpha: 0, scale: 0.85, duration: 0.45, ease: "back.out(1.6)" }, at + 0.5);
+        }
+      }
 
-      // ---- Scene 2: count-up ----
-      tl.from("#s2inner .eyebrow", { autoAlpha: 0, y: 14, duration: 0.4, ease: "power2.out" }, 3.35);
-      const statObj = { v: 0 };
-      tl.fromTo(
-        "#s2inner .stat-num",
-        { autoAlpha: 0, y: 30 },
-        { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out" },
-        3.5
-      );
-      tl.to(
-        statObj,
-        {
-          v: 88,
-          duration: 1.6,
-          ease: "power2.out",
-          onUpdate: () => {
-            document.getElementById("statVal").textContent = Math.round(statObj.v);
-          },
-        },
-        3.5
-      );
-      tl.from("#s2inner .stat-label", { autoAlpha: 0, y: 18, duration: 0.55, ease: "power2.out" }, 4.1);
-      tl.from("#s2inner .stat-foot", { autoAlpha: 0, duration: 0.5 }, 4.5);
-      tl.to("#s2inner", { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 6.2);
-      tl.set("#s2inner", { autoAlpha: 0 }, 6.6);
+      // gentle parallax drift per scene (layers move at different rates)
+      function parallax(camId, bId, mId, fId, at, dur) {
+        tl.fromTo(camId, { x: -60 }, { x: 60, duration: dur, ease: "sine.inOut" }, at);
+        tl.fromTo(bId,  { y: 40 },  { y: -40, duration: dur, ease: "sine.inOut" }, at);
+        tl.fromTo(mId,  { y: 18 },  { y: -18, duration: dur, ease: "sine.inOut" }, at);
+        tl.fromTo(fId,  { y: -10 }, { y: 10,  duration: dur, ease: "sine.inOut" }, at);
+      }
 
-      // ---- Scene 3: bar chart fill ----
-      tl.from("#s3inner .eyebrow", { autoAlpha: 0, y: 14, duration: 0.4, ease: "power2.out" }, 6.75);
-      tl.from("#s3inner h2", { autoAlpha: 0, y: 20, duration: 0.5, ease: "power2.out" }, 6.9);
-      tl.to(
-        "#s3inner .bar",
-        {
-          height: (i, el) => el.dataset.h + "%",
-          duration: 1.1,
-          ease: "expo.out",
-          stagger: 0.12,
-        },
-        7.1
-      );
-      tl.from(
-        "#s3inner .bar-col",
-        { autoAlpha: 0, y: 24, duration: 0.5, ease: "power2.out", stagger: 0.12 },
-        7.1
-      );
-      tl.to("#s3inner", { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 9.4);
-      tl.set("#s3inner", { autoAlpha: 0 }, 9.8);
+      // ---------- SCENE 1 (0 - 5.0) ----------
+      parallax("#cam1", "#b1", "#m1", "#f1", 0, 5.0);
+      enterText("#s1", 0.2);
+      tl.to("#s1", { autoAlpha: 0, duration: 0.35, ease: "power2.in" }, 4.65);
+      tl.set("#s1", { autoAlpha: 0 }, 5.0);
 
-      // ---- Scene 4: logo sting ----
-      tl.from(
-        "#s4inner .sting-mark",
-        { autoAlpha: 0, scale: 0.8, duration: 0.6, ease: "back.out(1.7)" },
-        9.95
-      );
-      tl.from("#s4inner .sting-sub", { autoAlpha: 0, y: 16, duration: 0.4, ease: "power2.out" }, 10.7);
-      tl.to("#stingRule", { width: 360, duration: 0.6, ease: "power3.out" }, 10.8);
-      tl.to("#s4inner", { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, 11.8);
+      // ---------- SCENE 2 (5.0 - 10.4) whip-pan style kinetic entry ----------
+      parallax("#cam2", "#b2", "#m2", "#f2", 5.0, 5.4);
+      tl.from("#cam2", { scale: 1.12, duration: 0.6, ease: "expo.out" }, 5.0); // kinetic dolly
+      enterText("#s2", 5.25);
+      tl.to("#s2", { autoAlpha: 0, duration: 0.35, ease: "power2.in" }, 10.05);
+      tl.set("#s2", { autoAlpha: 0 }, 10.4);
 
-      // ---- Ambient scanline drift (transform-based) ----
-      tl.fromTo(
-        "#scan",
-        { y: -540 },
-        { y: 540, duration: 12, ease: "sine.inOut" },
-        0
-      );
+      // ---------- SCENE 3 (10.4 - 16.0) ----------
+      parallax("#cam3", "#b3", "#m3", "#f3", 10.4, 5.6);
+      tl.from("#cam3", { scale: 1.1, duration: 0.6, ease: "expo.out" }, 10.4);
+      enterText("#s3", 10.65);
+      tl.to("#s3", { autoAlpha: 0, duration: 0.35, ease: "power2.in" }, 15.65);
+      tl.set("#s3", { autoAlpha: 0 }, 16.0);
+
+      // ---------- SCENE 4 (16.0 - 21.6) ----------
+      parallax("#cam4", "#b4", "#m4", "#f4", 16.0, 5.6);
+      tl.fromTo("#cam4", { scale: 1.25, rotate: -1.5 }, { scale: 1.0, rotate: 0, duration: 0.7, ease: "expo.out" }, 16.0);
+      enterText("#s4", 16.25);
+      tl.to("#s4", { autoAlpha: 0, duration: 0.35, ease: "power2.in" }, 21.25);
+      tl.set("#s4", { autoAlpha: 0 }, 21.6);
+
+      // ---------- SCENE 5 (21.6 - 27.0) ----------
+      parallax("#cam5", "#b5", "#m5", "#f5", 21.6, 5.4);
+      tl.from("#cam5", { scale: 1.12, duration: 0.6, ease: "expo.out" }, 21.6);
+      enterText("#s5", 21.85);
+      // closing hold + settle
+      tl.to("#cam5", { scale: 1.04, duration: 1.6, ease: "sine.out" }, 24.4);
 
       window.__timelines["main"] = tl;
     </script>
