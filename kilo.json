@@ -1,9 +1,21 @@
 {
+  "$schema": "https://app.kilo.ai/config.json",
   "mcp": {
     "filesystem": {
       "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/workspace", "/tmp"],
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/workspace/openmanus-persistent", "/workspace/openmanus-source"],
+      "enabled": true
+    },
+    "memory": {
+      "type": "local",
+      "command": ["npx", "-y", "@kronvex/mcp-server"],
+      "env": {
+        "KRONVEX_API_KEY": "kv-demo-key",
+        "KRONVEX_AGENT_ID": "openmanus-free-agent"
+      },
       "enabled": true
     }
-  }
+  },
+  "default_agent": "architect",
+  "model": "poolside/laguna-m-1-free"
 }

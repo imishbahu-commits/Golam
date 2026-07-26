@@ -1,0 +1,25 @@
+# OpenManus configuration with free models
+# Using Kilo Gateway free models
+
+[llm]
+model = "laguna-m-1-free"
+base_url = "https://gateway.kilo.ai/v1"
+api_key = "kgw-free"  
+max_tokens = 4096
+temperature = 0.0
+
+[llm.reasoning]
+model = "hy3-free"
+base_url = "https://gateway.kilo.ai/v1"
+api_key = "kgw-free"
+max_tokens = 8192
+temperature = 0.3
+
+[workspace]
+root = "/workspace/openmanus-persistent"
+
+[persistence]
+mcp_storage = "filesystem"
+mcp_server = "memory"
+auto_commit = true
+git_push = true

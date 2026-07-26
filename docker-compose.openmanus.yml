@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  openmanus:
+    image: python:3.12-slim
+    container_name: openmanus-persistent
+    volumes:
+      - /workspace/openmanus-persistent:/workspace/openmanus-persistent
+      - /home/agent_c6e27e46-3bd3-4a04-a00d-24767fdf774a/.config/openmanus:/root/.openmanus
+      - /etc/kilo:/root/.config/kilo
+    working_dir: /app
+    command: >
+      bash -c "
+        pip install uv &&
+        git clone https://github.com/FoundationAgents/OpenManus /app &&
+        cd /app && uv pip install -r requirements.txt &&
+        python run_mcp.py
+      "
+    environment:
+      - OPENMANUS_CONFIG_PATH=/root/.openmanus/config.toml
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
