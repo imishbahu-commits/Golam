@@ -2,6 +2,8 @@
 agent-reach/
 kokoro-82m/
 moneyprinter-turbo/
+voicebox/
+opencut/
 
 # Python
 __pycache__/
@@ -23,9 +25,12 @@ logs/
 dist/
 build/
 
-# OS
-.DS_Store
-Thumbs.db
+# Media files (large, re-download or regenerate)
+*.mp4
+*.mp3
+*.wav
+*.mov
+*.avi
 
 # Temp
 *.tmp
