@@ -1,47 +1,31 @@
 # AI Video Automation Environment
 
-## Installed Tools
+## Overview
+A complete pipeline for scraping videos from the web, generating AI voiceovers, and creating YouTube-ready commentary videos.
 
-| Tool | Location | Purpose |
+## Components
+
+| Tool | Purpose | Activate |
 |---|---|---|
-| **Agent-Reach** | `agent-reach/` | Web scraper for 13 platforms (X/Twitter, Bilibili, Xiaohongshu, YouTube, Reddit, etc.) |
-| **MoneyPrinterTurbo** | `moneyprinter-turbo/` | AI video generation with TTS (Edge TTS default) |
-| **Kokoro 82M** | `kokoro-82m/` | 82M parameter TTS model from hexgrad/kokoro |
-
-## Quick Start
-
-### Activate environments
-```bash
-source agent-reach/.venv/bin/activate
-# agent-reach commands available
-python -m agent_reach.cli doctor
-python -m agent_reach.cli install --env=auto
-
-source ../moneyprinter-turbo/.venv/bin/activate
-# moneyprinter-turbo commands available
-python cli.py --help
-```
-
-### Workflow: Scrape -> Generate -> Voiceover -> Video
-
-1. **Scrape videos/clips** from Bilibili, Xiaohongshu, X/Twitter using Agent-Reach:
-   ```bash
-   python -m agent_reach.cli read "https://www.bilibili.com/video/BV..."
-   python -m agent_reach.cli read "https://www.xiaohongshu.com/explore/..."
-   ```
-
-2. **Generate YouTube-ready videos** with MoneyPrinterTurbo:
-   ```bash
-   python cli.py --prompt "A video about AI trends" --voice-name "en-US-AriaNeural" --aspect-ratio 16:9
-   ```
-
-3. **Use Kokoro 82M** for alternative TTS:
-   ```bash
-   cd kokoro-82m && uv run python -m kokoro --text "Hello world" --model z
-   ```
+| **Agent-Reach** | Web scraper for 13 platforms (Bilibili, XiaoHongShu, Twitter/X, YouTube, Reddit...) | `source agent-reach/.venv/bin/activate` |
+| **MoneyPrinterTurbo** | AI video generation with TTS (Edge TTS default) | `source moneyprinter-turbo/.venv/bin/activate` |
+| **Kokoro 82M** | 82M parameter TTS model (English/Zh multi-speaker) | `cd kokoro-82m && source .venv/bin/activate` |
 
 ## Session Persistence
+All configs and scripts are tracked on GitHub. At the start of each session, run `./setup.sh` to restore everything.
 
-All files in this directory are tracked on GitHub. Use:
-- `./save.sh "message"` — persist current state to GitHub
-- `./setup.sh` — restore files + reinstall dependencies at session start
+## Quick Start
+```bash
+# 1. Start new session
+source agent-reach/.venv/bin/activate
+source moneyprinter-turbo/.venv/bin/activate  # optional: switch to MPT env
+
+# 2. Scrape video clips (Agent-Reach)
+python -m agent_reach.cli read "https://www.bilibili.com/video/BV..."
+
+# 3. Generate voiceover (MoneyPrinterTurbo or Kokoro)
+python moneyprinter-turbo/cli.py --prompt "..." --voice-name "en-US-AriaNeural"
+
+# 4. Save your progress before session ends
+./save.sh "Work completed"
+```
